@@ -117,8 +117,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private JMSPropertiesPanel jmsPropertiesPanel;
 
-    private JMSAuthPanel jmsAuthPanel;
-
     public JMSPublisherGui() {
         init();
     }
@@ -161,18 +159,20 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     private void setupSamplerProperties(final PublisherSampler sampler) {
       super.configureTestElement(sampler);
 
+      /* Set JNDI connection details */
       sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
       sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
       sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+      sampler.setUseAuth(jmsJndiPanel.getUseAuth());
+      sampler.setUsername(jmsJndiPanel.getJmsUser());
+      sampler.setPassword(jmsJndiPanel.getJmsPwd());
 
       sampler.setConnectionFactory(jndiConnFac.getText());
       sampler.setDestination(jmsDestination.getText());
       sampler.setExpiration(expiration.getText());
       sampler.setReconnectionErrorCodes(jmsErrorReconnectOnCodes.getText());
       sampler.setPriority(priority.getText());
-      sampler.setUseAuth(jmsAuthPanel.getUseAuth());
-      sampler.setUsername(jmsAuthPanel.getJmsUser());
-      sampler.setPassword(jmsAuthPanel.getJmsPwd());
+
       sampler.setTextMessage(textMessage.getText());
       sampler.setInputFile(messageFile.getFilename());
       sampler.setRandomPath(randomFile.getFilename());
@@ -203,10 +203,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
         mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
-
-        jmsAuthPanel = new JMSAuthPanel();
-        mainPanel.add(jmsAuthPanel);
-
         mainPanel.add(createPriorityAndExpiration());
         mainPanel.add(jmsErrorReconnectOnCodes);
         mainPanel.add(iterations);
@@ -256,7 +252,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         updateConfig(USE_TEXT_RSC);
         msgChoice.setText(TEXT_MSG_RSC);
         iterations.setText("1"); // $NON-NLS-1$
-        jmsAuthPanel.clearGui();
         destSetup.setText(DEST_SETUP_STATIC);
         useNonPersistentDelivery.setSelected(false);
         jmsPropertiesPanel.clearGui();
@@ -272,7 +267,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         jmsJndiPanel.configure(sampler);
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
-        jmsAuthPanel.configure(sampler);
         textMessage.setInitialText(sampler.getTextMessage());
         textMessage.setCaretPosition(0);
         messageFile.setFilename(sampler.getInputFile());
@@ -301,15 +295,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
             updateConfig(configChoice.getText());
         } else if (event.getSource() == msgChoice) {
             updateChoice(msgChoice.getText());
-        } /*else if (event.getSource() == useProperties) {
-
-            final boolean isUseProperties = useProperties.isSelected();
-            jndiICF.setEnabled(!isUseProperties);
-            urlField.setEnabled(!isUseProperties);
-
-            // FIXME TODO Move to JMSJndiPanel
-            jmsAuthPanel.setAuthEnabled(!isUseProperties);
-        }*/
+        }
     }
 
     private void updateFileEncoding() {

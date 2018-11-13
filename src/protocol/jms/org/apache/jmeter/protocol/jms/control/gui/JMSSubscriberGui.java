@@ -136,18 +136,20 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         SubscriberSampler sampler = (SubscriberSampler) s;
         super.configureTestElement(sampler);
 
+        /* Set JNDI connection details */
         sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
         sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
         sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+        sampler.setUseAuth(jmsJndiPanel.getUseAuth());
+        sampler.setUsername(jmsJndiPanel.getJmsUser());
+        sampler.setPassword(jmsJndiPanel.getJmsPwd());
 
         sampler.setConnectionFactory(jndiConnFac.getText());
         sampler.setDestination(jmsDestination.getText());
         sampler.setDurableSubscriptionId(jmsDurableSubscriptionId.getText());
         sampler.setClientID(jmsClientId.getText());
         sampler.setJmsSelector(jmsSelector.getText());
-        sampler.setUseAuth(jmsAuthPanel.getUseAuth());
-        sampler.setUsername(jmsAuthPanel.getJmsUser());
-        sampler.setPassword(jmsAuthPanel.getJmsPwd());
+
         sampler.setIterations(samplesToAggregate.getText());
         sampler.setReadResponse(String.valueOf(storeResponse.isSelected()));
         sampler.setClientChoice(clientChoice.getText());
@@ -179,11 +181,7 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         mainPanel.add(jmsDurableSubscriptionId);
         mainPanel.add(jmsClientId);
         mainPanel.add(jmsSelector);
-
-        jmsAuthPanel = new JMSAuthPanel();
-        mainPanel.add(jmsAuthPanel);
         mainPanel.add(samplesToAggregate);
-
         mainPanel.add(storeResponse);
         mainPanel.add(timeout);
         
@@ -207,7 +205,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         jmsJndiPanel.configure(sampler);
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
-        jmsAuthPanel.configure(sampler);
         jmsDurableSubscriptionId.setText(sampler.getDurableSubscriptionId());
         jmsClientId.setText(sampler.getClientId());
         jmsSelector.setText(sampler.getJmsSelector());
@@ -240,8 +237,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         destSetup.setText(DEST_SETUP_STATIC);
         jmsErrorReconnectOnCodes.setText("");
         jmsErrorPauseBetween.setText("");
-
-        jmsAuthPanel.clearGui();
     }
 
     /**
@@ -250,13 +245,7 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
      */
     @Override
     public void stateChanged(ChangeEvent event) {
-        /* FIXME TODO
-        if (event.getSource() == useProperties) {
-            final boolean isUseProperties = useProperties.isSelected();
-            jndiICF.setEnabled(!isUseProperties);
-            urlField.setEnabled(!isUseProperties);
-            jmsAuthPanel.setAuthEnabled(!isUseProperties);
-        }*/
+
     }
     
     private JPanel createDestinationPane() {
