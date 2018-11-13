@@ -92,6 +92,8 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
         pane.add(jndiICF);
         pane.add(urlField);
 
+        jndiICF.setToolTipText(Context.INITIAL_CONTEXT_FACTORY);
+        urlField.setToolTipText(Context.PROVIDER_URL);
 
         return pane;
     }
