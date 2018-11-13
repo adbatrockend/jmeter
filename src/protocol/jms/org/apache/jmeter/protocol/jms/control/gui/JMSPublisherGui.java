@@ -76,13 +76,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private static final String[] MSGTYPES_ITEMS = { TEXT_MSG_RSC, MAP_MSG_RSC, OBJECT_MSG_RSC, BYTES_MSG_RSC };
 
-    private final JCheckBox useProperties = new JCheckBox(JMeterUtils.getResString("jms_use_properties_file"), false); //$NON-NLS-1$
-
     private final JLabeledRadioI18N configChoice = new JLabeledRadioI18N("jms_config", CONFIG_ITEMS, USE_TEXT_RSC); //$NON-NLS-1$
-
-    private final JLabeledTextField jndiICF = new JLabeledTextField(JMeterUtils.getResString("jms_initial_context_factory")); //$NON-NLS-1$
-
-    private final JLabeledTextField urlField = new JLabeledTextField(JMeterUtils.getResString("jms_provider_url")); //$NON-NLS-1$
 
     private final JLabeledTextField jndiConnFac = new JLabeledTextField(JMeterUtils.getResString("jms_connection_factory")); //$NON-NLS-1$
 
@@ -118,6 +112,8 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JLabeledRadioI18N destSetup =
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
+
+    private JMSJndiPanel jmsJndiPanel;
 
     private JMSPropertiesPanel jmsPropertiesPanel;
 
@@ -164,9 +160,11 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      */
     private void setupSamplerProperties(final PublisherSampler sampler) {
       super.configureTestElement(sampler);
-      sampler.setUseJNDIProperties(String.valueOf(useProperties.isSelected()));
-      sampler.setJNDIIntialContextFactory(jndiICF.getText());
-      sampler.setProviderUrl(urlField.getText());
+
+      sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
+      sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
+      sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+
       sampler.setConnectionFactory(jndiConnFac.getText());
       sampler.setDestination(jmsDestination.getText());
       sampler.setExpiration(expiration.getText());
@@ -199,10 +197,10 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
         JPanel mainPanel = new VerticalPanel();
         add(mainPanel, BorderLayout.CENTER);
-        
-        mainPanel.add(useProperties);
-        mainPanel.add(jndiICF);
-        mainPanel.add(urlField);
+
+        jmsJndiPanel = new JMSJndiPanel();
+        mainPanel.add(jmsJndiPanel);
+
         mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
 
@@ -236,7 +234,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         messageContentPanel.add(JTextScrollPane.getInstance(textMessage), BorderLayout.CENTER);
 
         mainPanel.add(messageContentPanel);
-        useProperties.addChangeListener(this);
         configChoice.addChangeListener(this);
         msgChoice.addChangeListener(this);
     }
@@ -244,9 +241,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     @Override
     public void clearGui(){
         super.clearGui();
-        useProperties.setSelected(false);
-        jndiICF.setText(""); // $NON-NLS-1$
-        urlField.setText(""); // $NON-NLS-1$
+        jmsJndiPanel.clearGui();
         jndiConnFac.setText(""); // $NON-NLS-1$
         jmsDestination.setText(""); // $NON-NLS-1$
         expiration.setText(""); // $NON-NLS-1$
@@ -274,9 +269,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     public void configure(TestElement el) {
         super.configure(el);
         PublisherSampler sampler = (PublisherSampler) el;
-        useProperties.setSelected(sampler.getUseJNDIPropertiesAsBoolean());
-        jndiICF.setText(sampler.getJNDIInitialContextFactory());
-        urlField.setText(sampler.getProviderUrl());
+        jmsJndiPanel.configure(sampler);
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
         jmsAuthPanel.configure(sampler);
@@ -308,13 +301,15 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
             updateConfig(configChoice.getText());
         } else if (event.getSource() == msgChoice) {
             updateChoice(msgChoice.getText());
-        } else if (event.getSource() == useProperties) {
+        } /*else if (event.getSource() == useProperties) {
+
             final boolean isUseProperties = useProperties.isSelected();
             jndiICF.setEnabled(!isUseProperties);
             urlField.setEnabled(!isUseProperties);
 
+            // FIXME TODO Move to JMSJndiPanel
             jmsAuthPanel.setAuthEnabled(!isUseProperties);
-        }
+        }*/
     }
 
     private void updateFileEncoding() {
