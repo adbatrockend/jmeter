@@ -95,12 +95,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JLabeledTextField priority = new JLabeledTextField(JMeterUtils.getResString("jms_priority"),1); //$NON-NLS-1$
 
-    private final JCheckBox useAuth = new JCheckBox(JMeterUtils.getResString("jms_use_auth"), false); //$NON-NLS-1$
-
-    private final JLabeledTextField jmsUser = new JLabeledTextField(JMeterUtils.getResString("jms_user")); //$NON-NLS-1$
-
-    private final JLabeledTextField jmsPwd = new JLabeledPasswordField(JMeterUtils.getResString("jms_pwd")); //$NON-NLS-1$
-
     private final JLabeledTextField iterations = new JLabeledTextField(JMeterUtils.getResString("jms_itertions")); //$NON-NLS-1$
 
     private final FilePanel messageFile = new FilePanel(JMeterUtils.getResString("jms_file")); //$NON-NLS-1$
@@ -126,6 +120,8 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
 
     private JMSPropertiesPanel jmsPropertiesPanel;
+
+    private JMSAuthPanel jmsAuthPanel;
 
     public JMSPublisherGui() {
         init();
@@ -176,8 +172,9 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
       sampler.setExpiration(expiration.getText());
       sampler.setReconnectionErrorCodes(jmsErrorReconnectOnCodes.getText());
       sampler.setPriority(priority.getText());
-      sampler.setUsername(jmsUser.getText());
-      sampler.setPassword(jmsPwd.getText());
+      sampler.setUseAuth(jmsAuthPanel.getUseAuth());
+      sampler.setUsername(jmsAuthPanel.getJmsUser());
+      sampler.setPassword(jmsAuthPanel.getJmsPwd());
       sampler.setTextMessage(textMessage.getText());
       sampler.setInputFile(messageFile.getFilename());
       sampler.setRandomPath(randomFile.getFilename());
@@ -185,7 +182,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
       sampler.setFileEncoding(fileEncoding.getText());
       sampler.setMessageChoice(msgChoice.getText());
       sampler.setIterations(iterations.getText());
-      sampler.setUseAuth(useAuth.isSelected());
       sampler.setUseNonPersistentDelivery(useNonPersistentDelivery.isSelected());
      
       JMSProperties args = (JMSProperties) jmsPropertiesPanel.createTestElement();
@@ -209,7 +205,10 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         mainPanel.add(urlField);
         mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
-        mainPanel.add(createAuthPane());
+
+        jmsAuthPanel = new JMSAuthPanel();
+        mainPanel.add(jmsAuthPanel);
+
         mainPanel.add(createPriorityAndExpiration());
         mainPanel.add(jmsErrorReconnectOnCodes);
         mainPanel.add(iterations);
@@ -238,7 +237,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
         mainPanel.add(messageContentPanel);
         useProperties.addChangeListener(this);
-        useAuth.addChangeListener(this);
         configChoice.addChangeListener(this);
         msgChoice.addChangeListener(this);
     }
@@ -254,8 +252,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         expiration.setText(""); // $NON-NLS-1$
         jmsErrorReconnectOnCodes.setText("");
         priority.setText(""); // $NON-NLS-1$
-        jmsUser.setText(""); // $NON-NLS-1$
-        jmsPwd.setText(""); // $NON-NLS-1$
         textMessage.setInitialText(""); // $NON-NLS-1$
         messageFile.setFilename(""); // $NON-NLS-1$
         randomFile.setFilename(""); // $NON-NLS-1$
@@ -265,9 +261,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         updateConfig(USE_TEXT_RSC);
         msgChoice.setText(TEXT_MSG_RSC);
         iterations.setText("1"); // $NON-NLS-1$
-        useAuth.setSelected(false);
-        jmsUser.setEnabled(false);
-        jmsPwd.setEnabled(false);
+        jmsAuthPanel.clearGui();
         destSetup.setText(DEST_SETUP_STATIC);
         useNonPersistentDelivery.setSelected(false);
         jmsPropertiesPanel.clearGui();
@@ -285,8 +279,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         urlField.setText(sampler.getProviderUrl());
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
-        jmsUser.setText(sampler.getUsername());
-        jmsPwd.setText(sampler.getPassword());
+        jmsAuthPanel.configure(sampler);
         textMessage.setInitialText(sampler.getTextMessage());
         textMessage.setCaretPosition(0);
         messageFile.setFilename(sampler.getInputFile());
@@ -298,9 +291,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         expiration.setText(sampler.getExpiration());
         jmsErrorReconnectOnCodes.setText(sampler.getReconnectionErrorCodes());
         priority.setText(sampler.getPriority());
-        useAuth.setSelected(sampler.isUseAuth());
-        jmsUser.setEnabled(useAuth.isSelected());
-        jmsPwd.setEnabled(useAuth.isSelected());
         destSetup.setText(sampler.isDestinationStatic() ? DEST_SETUP_STATIC : DEST_SETUP_DYNAMIC);
         useNonPersistentDelivery.setSelected(sampler.getUseNonPersistentDelivery());
         jmsPropertiesPanel.configure(sampler.getJMSProperties());
@@ -322,10 +312,8 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
             final boolean isUseProperties = useProperties.isSelected();
             jndiICF.setEnabled(!isUseProperties);
             urlField.setEnabled(!isUseProperties);
-            useAuth.setEnabled(!isUseProperties);
-        } else if (event.getSource() == useAuth) {
-            jmsUser.setEnabled(useAuth.isSelected() && useAuth.isEnabled());
-            jmsPwd.setEnabled(useAuth.isSelected()  && useAuth.isEnabled());
+
+            jmsAuthPanel.setAuthEnabled(!isUseProperties);
         }
     }
 
@@ -387,20 +375,6 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         destSetup.setLayout(new BoxLayout(destSetup, BoxLayout.X_AXIS));
         pane.add(destSetup, BorderLayout.CENTER);
         pane.add(useNonPersistentDelivery, BorderLayout.EAST);
-        return pane;
-    }
-    
-    /**
-     * @return JPanel Panel with checkbox to choose auth , user and password
-     */
-    private JPanel createAuthPane() {
-        JPanel pane = new JPanel();
-        pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-        pane.add(useAuth);
-        pane.add(Box.createHorizontalStrut(10));
-        pane.add(jmsUser);
-        pane.add(Box.createHorizontalStrut(10));
-        pane.add(jmsPwd);
         return pane;
     }
 
