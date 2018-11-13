@@ -69,17 +69,8 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     private final JLabeledTextField jmsSelector =
         new JLabeledTextField(JMeterUtils.getResString("jms_selector")); // $NON-NLS-1$
 
-    private final JLabeledTextField jmsUser =
-        new JLabeledTextField(JMeterUtils.getResString("jms_user")); // $NON-NLS-1$
-
-    private final JLabeledTextField jmsPwd =
-        new JLabeledPasswordField(JMeterUtils.getResString("jms_pwd")); // $NON-NLS-1$
-
     private final JLabeledTextField samplesToAggregate =
         new JLabeledTextField(JMeterUtils.getResString("jms_itertions")); // $NON-NLS-1$
-
-    private final JCheckBox useAuth =
-        new JCheckBox(JMeterUtils.getResString("jms_use_auth"), false); //$NON-NLS-1$
 
     private final JCheckBox storeResponse =
         new JCheckBox(JMeterUtils.getResString("jms_store_response"), true); // $NON-NLS-1$
@@ -120,6 +111,8 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
 
     private final JLabeledRadioI18N destSetup =
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
+
+    private JMSAuthPanel jmsAuthPanel;
     
     public JMSSubscriberGui() {
         init();
@@ -157,9 +150,9 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         sampler.setDurableSubscriptionId(jmsDurableSubscriptionId.getText());
         sampler.setClientID(jmsClientId.getText());
         sampler.setJmsSelector(jmsSelector.getText());
-        sampler.setUsername(jmsUser.getText());
-        sampler.setPassword(jmsPwd.getText());
-        sampler.setUseAuth(useAuth.isSelected());
+        sampler.setUseAuth(jmsAuthPanel.getUseAuth());
+        sampler.setUsername(jmsAuthPanel.getJmsUser());
+        sampler.setPassword(jmsAuthPanel.getJmsPwd());
         sampler.setIterations(samplesToAggregate.getText());
         sampler.setReadResponse(String.valueOf(storeResponse.isSelected()));
         sampler.setClientChoice(clientChoice.getText());
@@ -185,8 +178,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         
         jndiICF.setToolTipText(Context.INITIAL_CONTEXT_FACTORY);
         urlField.setToolTipText(Context.PROVIDER_URL);
-        jmsUser.setToolTipText(Context.SECURITY_PRINCIPAL);
-        jmsPwd.setToolTipText(Context.SECURITY_CREDENTIALS);
         mainPanel.add(useProperties);
         mainPanel.add(jndiICF);
         mainPanel.add(urlField);
@@ -195,9 +186,9 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         mainPanel.add(jmsDurableSubscriptionId);
         mainPanel.add(jmsClientId);
         mainPanel.add(jmsSelector);
-        mainPanel.add(useAuth);
-        mainPanel.add(jmsUser);
-        mainPanel.add(jmsPwd);
+
+        jmsAuthPanel = new JMSAuthPanel();
+        mainPanel.add(jmsAuthPanel);
         mainPanel.add(samplesToAggregate);
 
         mainPanel.add(storeResponse);
@@ -213,7 +204,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         mainPanel.add(jmsErrorPauseBetween);
 
         useProperties.addChangeListener(this);
-        useAuth.addChangeListener(this);
     }
 
     /**
@@ -228,15 +218,11 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         urlField.setText(sampler.getProviderUrl());
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
+        jmsAuthPanel.configure(sampler);
         jmsDurableSubscriptionId.setText(sampler.getDurableSubscriptionId());
         jmsClientId.setText(sampler.getClientId());
         jmsSelector.setText(sampler.getJmsSelector());
-        jmsUser.setText(sampler.getUsername());
-        jmsPwd.setText(sampler.getPassword());
         samplesToAggregate.setText(sampler.getIterations());
-        useAuth.setSelected(sampler.isUseAuth());
-        jmsUser.setEnabled(useAuth.isSelected());
-        jmsPwd.setEnabled(useAuth.isSelected());
         storeResponse.setSelected(sampler.getReadResponseAsBoolean());
         clientChoice.setText(sampler.getClientChoice());
         stopBetweenSamples.setSelected(sampler.isStopBetweenSamples());
@@ -258,20 +244,17 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         jmsDurableSubscriptionId.setText(""); // $NON-NLS-1$
         jmsClientId.setText(""); // $NON-NLS-1$
         jmsSelector.setText(""); // $NON-NLS-1$
-        jmsUser.setText(""); // $NON-NLS-1$
-        jmsPwd.setText(""); // $NON-NLS-1$
         samplesToAggregate.setText("1"); // $NON-NLS-1$
         timeout.setText(""); // $NON-NLS-1$
         separator.setText(""); // $NON-NLS-1$
-        useAuth.setSelected(false);
-        jmsUser.setEnabled(false);
-        jmsPwd.setEnabled(false);
         storeResponse.setSelected(true);
         clientChoice.setText(RECEIVE_RSC);
         stopBetweenSamples.setSelected(false);
         destSetup.setText(DEST_SETUP_STATIC);
         jmsErrorReconnectOnCodes.setText("");
         jmsErrorPauseBetween.setText("");
+
+        jmsAuthPanel.clearGui();
     }
 
     /**
@@ -284,10 +267,7 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
             final boolean isUseProperties = useProperties.isSelected();
             jndiICF.setEnabled(!isUseProperties);
             urlField.setEnabled(!isUseProperties);
-            useAuth.setEnabled(!isUseProperties);
-        } else if (event.getSource() == useAuth) {
-            jmsUser.setEnabled(useAuth.isSelected() && useAuth.isEnabled());
-            jmsPwd.setEnabled(useAuth.isSelected()  && useAuth.isEnabled());
+            jmsAuthPanel.setAuthEnabled(!isUseProperties);
         }
     }
     
