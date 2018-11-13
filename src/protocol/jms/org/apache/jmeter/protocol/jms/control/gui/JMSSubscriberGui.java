@@ -45,15 +45,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
 
     private static final long serialVersionUID = 240L;
 
-    private final JCheckBox useProperties =
-        new JCheckBox(JMeterUtils.getResString("jms_use_properties_file"), false); // $NON-NLS-1$
-
-    private final JLabeledTextField jndiICF =
-        new JLabeledTextField(JMeterUtils.getResString("jms_initial_context_factory")); // $NON-NLS-1$
-
-    private final JLabeledTextField urlField =
-        new JLabeledTextField(JMeterUtils.getResString("jms_provider_url")); // $NON-NLS-1$
-
     private final JLabeledTextField jndiConnFac =
         new JLabeledTextField(JMeterUtils.getResString("jms_connection_factory")); // $NON-NLS-1$
 
@@ -112,6 +103,8 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     private final JLabeledRadioI18N destSetup =
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
 
+    private JMSJndiPanel jmsJndiPanel;
+
     private JMSAuthPanel jmsAuthPanel;
     
     public JMSSubscriberGui() {
@@ -142,9 +135,11 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     public void modifyTestElement(TestElement s) {
         SubscriberSampler sampler = (SubscriberSampler) s;
         super.configureTestElement(sampler);
-        sampler.setUseJNDIProperties(String.valueOf(useProperties.isSelected()));
-        sampler.setJNDIIntialContextFactory(jndiICF.getText());
-        sampler.setProviderUrl(urlField.getText());
+
+        sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
+        sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
+        sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+
         sampler.setConnectionFactory(jndiConnFac.getText());
         sampler.setDestination(jmsDestination.getText());
         sampler.setDurableSubscriptionId(jmsDurableSubscriptionId.getText());
@@ -175,12 +170,10 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
 
         JPanel mainPanel = new VerticalPanel();
         add(mainPanel, BorderLayout.CENTER);
-        
-        jndiICF.setToolTipText(Context.INITIAL_CONTEXT_FACTORY);
-        urlField.setToolTipText(Context.PROVIDER_URL);
-        mainPanel.add(useProperties);
-        mainPanel.add(jndiICF);
-        mainPanel.add(urlField);
+
+        jmsJndiPanel = new JMSJndiPanel();
+        mainPanel.add(jmsJndiPanel);
+
         mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
         mainPanel.add(jmsDurableSubscriptionId);
@@ -202,8 +195,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         
         mainPanel.add(jmsErrorReconnectOnCodes);
         mainPanel.add(jmsErrorPauseBetween);
-
-        useProperties.addChangeListener(this);
     }
 
     /**
@@ -213,9 +204,7 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     public void configure(TestElement el) {
         super.configure(el);
         SubscriberSampler sampler = (SubscriberSampler) el;
-        useProperties.setSelected(sampler.getUseJNDIPropertiesAsBoolean());
-        jndiICF.setText(sampler.getJNDIInitialContextFactory());
-        urlField.setText(sampler.getProviderUrl());
+        jmsJndiPanel.configure(sampler);
         jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
         jmsAuthPanel.configure(sampler);
@@ -236,9 +225,7 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     @Override
     public void clearGui(){
         super.clearGui();
-        useProperties.setSelected(false); // $NON-NLS-1$
-        jndiICF.setText(""); // $NON-NLS-1$
-        urlField.setText(""); // $NON-NLS-1$
+        jmsJndiPanel.clearGui();
         jndiConnFac.setText(""); // $NON-NLS-1$
         jmsDestination.setText(""); // $NON-NLS-1$
         jmsDurableSubscriptionId.setText(""); // $NON-NLS-1$
@@ -263,12 +250,13 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
      */
     @Override
     public void stateChanged(ChangeEvent event) {
+        /* FIXME TODO
         if (event.getSource() == useProperties) {
             final boolean isUseProperties = useProperties.isSelected();
             jndiICF.setEnabled(!isUseProperties);
             urlField.setEnabled(!isUseProperties);
             jmsAuthPanel.setAuthEnabled(!isUseProperties);
-        }
+        }*/
     }
     
     private JPanel createDestinationPane() {
