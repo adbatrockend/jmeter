@@ -342,7 +342,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      * @since 2.9
      */
     private void updateChoice(String command) {
-        /*
+        /* FIXME TODO
         String oldChoice = configChoice.getText();
         if (BYTES_MSG_RSC.equals(command)) {
             String newChoice = USE_TEXT_RSC.equals(oldChoice) ? 
