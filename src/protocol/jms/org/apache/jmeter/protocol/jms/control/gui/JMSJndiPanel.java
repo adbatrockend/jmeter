@@ -101,7 +101,8 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
      */
     private void init() { // called from ctor, so must not be overridable
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
+                JMeterUtils.getResString("jms_jndi_props"))); //$NON-NLS-1$
         add(createJndiPanel(), BorderLayout.CENTER);
 
         useProperties.addChangeListener(this);
