@@ -20,7 +20,6 @@ package org.apache.jmeter.protocol.jms.control.gui;
 
 import java.awt.BorderLayout;
 
-import javax.naming.Context;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -34,7 +33,6 @@ import org.apache.jmeter.protocol.jms.sampler.SubscriberSampler;
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.gui.JLabeledPasswordField;
 import org.apache.jorphan.gui.JLabeledTextField;
 
 /**
@@ -104,8 +102,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
 
     private JMSJndiPanel jmsJndiPanel;
-
-    private JMSAuthPanel jmsAuthPanel;
     
     public JMSSubscriberGui() {
         init();
