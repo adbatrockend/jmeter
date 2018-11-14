@@ -342,6 +342,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      * @since 2.9
      */
     private void updateChoice(String command) {
+        /*
         String oldChoice = configChoice.getText();
         if (BYTES_MSG_RSC.equals(command)) {
             String newChoice = USE_TEXT_RSC.equals(oldChoice) ? 
@@ -351,7 +352,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         } else {
             configChoice.resetButtons(CONFIG_ITEMS, oldChoice);
             textMessage.setEnabled(true);
-        }
+        }*/
         updateFileEncoding();
         validate();
     }

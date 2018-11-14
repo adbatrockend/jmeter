@@ -331,6 +331,7 @@ public class PublisherSampler extends BaseJMSSampler implements TestStateListene
      **/
     private <T> T getRenderedContent(Class<T> type, String[] fileExts) {
         MessageRenderer<T> renderer = Renderers.getInstance(type);
+        log.info("Generating rendered content using " + renderer.toString());
         if (getConfigChoice().equals(JMSPublisherGui.USE_TEXT_RSC)) {
             return renderer.getValueFromText(getTextMessage());
         } else {
