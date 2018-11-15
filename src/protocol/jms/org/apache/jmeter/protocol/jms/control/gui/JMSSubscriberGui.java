@@ -43,9 +43,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
 
     private static final long serialVersionUID = 240L;
 
-    private final JLabeledTextField jndiConnFac =
-        new JLabeledTextField(JMeterUtils.getResString("jms_connection_factory")); // $NON-NLS-1$
-
     private final JLabeledTextField jmsDestination =
         new JLabeledTextField(JMeterUtils.getResString("jms_topic")); // $NON-NLS-1$
     
@@ -136,11 +133,11 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
         sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
         sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+        sampler.setConnectionFactory(jmsJndiPanel.getJndiConnFac());
         sampler.setUseAuth(jmsJndiPanel.getUseAuth());
         sampler.setUsername(jmsJndiPanel.getJmsUser());
         sampler.setPassword(jmsJndiPanel.getJmsPwd());
 
-        sampler.setConnectionFactory(jndiConnFac.getText());
         sampler.setDestination(jmsDestination.getText());
         sampler.setDurableSubscriptionId(jmsDurableSubscriptionId.getText());
         sampler.setClientID(jmsClientId.getText());
@@ -172,7 +169,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         jmsJndiPanel = new JMSJndiPanel();
         mainPanel.add(jmsJndiPanel);
 
-        mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
         mainPanel.add(jmsDurableSubscriptionId);
         mainPanel.add(jmsClientId);
@@ -199,7 +195,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         super.configure(el);
         SubscriberSampler sampler = (SubscriberSampler) el;
         jmsJndiPanel.configure(sampler);
-        jndiConnFac.setText(sampler.getConnectionFactory());
         jmsDestination.setText(sampler.getDestination());
         jmsDurableSubscriptionId.setText(sampler.getDurableSubscriptionId());
         jmsClientId.setText(sampler.getClientId());
@@ -219,7 +214,6 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
     public void clearGui(){
         super.clearGui();
         jmsJndiPanel.clearGui();
-        jndiConnFac.setText(""); // $NON-NLS-1$
         jmsDestination.setText(""); // $NON-NLS-1$
         jmsDurableSubscriptionId.setText(""); // $NON-NLS-1$
         jmsClientId.setText(""); // $NON-NLS-1$

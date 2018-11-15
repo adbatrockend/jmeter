@@ -77,16 +77,14 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JLabeledRadioI18N configChoice = new JLabeledRadioI18N("jms_config", CONFIG_ITEMS, USE_TEXT_RSC); //$NON-NLS-1$
 
-    private final JLabeledTextField jndiConnFac = new JLabeledTextField(JMeterUtils.getResString("jms_connection_factory")); //$NON-NLS-1$
+    //private final JLabeledTextField jmsDestination = new JLabeledTextField(JMeterUtils.getResString("jms_topic")); //$NON-NLS-1$
 
-    private final JLabeledTextField jmsDestination = new JLabeledTextField(JMeterUtils.getResString("jms_topic")); //$NON-NLS-1$
-
-    private final JLabeledTextField expiration = new JLabeledTextField(JMeterUtils.getResString("jms_expiration"),10); //$NON-NLS-1$
+    //private final JLabeledTextField expiration = new JLabeledTextField(JMeterUtils.getResString("jms_expiration"),10); //$NON-NLS-1$
 
     private final JLabeledTextField jmsErrorReconnectOnCodes =
             new JLabeledTextField(JMeterUtils.getResString("jms_error_reconnect_on_codes")); // $NON-NLS-1$
 
-    private final JLabeledTextField priority = new JLabeledTextField(JMeterUtils.getResString("jms_priority"),1); //$NON-NLS-1$
+    //private final JLabeledTextField priority = new JLabeledTextField(JMeterUtils.getResString("jms_priority"),1); //$NON-NLS-1$
 
     private final JLabeledTextField iterations = new JLabeledTextField(JMeterUtils.getResString("jms_itertions")); //$NON-NLS-1$
 
@@ -100,7 +98,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     
     private JLabeledChoice fileEncoding;
 
-    private final JCheckBox useNonPersistentDelivery = new JCheckBox(JMeterUtils.getResString("jms_use_non_persistent_delivery"),false); //$NON-NLS-1$
+    //private final JCheckBox useNonPersistentDelivery = new JCheckBox(JMeterUtils.getResString("jms_use_non_persistent_delivery"),false); //$NON-NLS-1$
 
     // These are the names of properties used to define the labels
     private static final String DEST_SETUP_STATIC = "jms_dest_setup_static"; // $NON-NLS-1$
@@ -113,6 +111,8 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         new JLabeledRadioI18N("jms_dest_setup", DEST_SETUP_ITEMS, DEST_SETUP_STATIC); // $NON-NLS-1$
 
     private JMSJndiPanel jmsJndiPanel;
+
+    private JMSSendDetailsPanel jmsSendDetailsPanel;
 
     private JMSPropertiesPanel jmsPropertiesPanel;
 
@@ -162,15 +162,20 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
       sampler.setUseJNDIProperties(String.valueOf(jmsJndiPanel.getUseJNDIProperties()));
       sampler.setJNDIIntialContextFactory(jmsJndiPanel.getJNDInitialContextFactory());
       sampler.setProviderUrl(jmsJndiPanel.getProviderUrl());
+      sampler.setConnectionFactory(jmsJndiPanel.getJndiConnFac());
       sampler.setUseAuth(jmsJndiPanel.getUseAuth());
       sampler.setUsername(jmsJndiPanel.getJmsUser());
       sampler.setPassword(jmsJndiPanel.getJmsPwd());
 
-      sampler.setConnectionFactory(jndiConnFac.getText());
-      sampler.setDestination(jmsDestination.getText());
-      sampler.setExpiration(expiration.getText());
+      //sampler.setDestination(jmsDestination.getText());
+      //sampler.setExpiration(expiration.getText());
       sampler.setReconnectionErrorCodes(jmsErrorReconnectOnCodes.getText());
-      sampler.setPriority(priority.getText());
+
+      sampler.setPriority(jmsSendDetailsPanel.getMessagePriority());
+      sampler.setDestination(jmsSendDetailsPanel.getDestination());
+      sampler.setExpiration(jmsSendDetailsPanel.getExpiration());
+      sampler.setUseNonPersistentDelivery(jmsSendDetailsPanel.getNonPersistentDelivery());
+      // FIXME TODO Other fields
 
       sampler.setTextMessage(textMessage.getText());
       sampler.setInputFile(messageFile.getFilename());
@@ -179,7 +184,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
       sampler.setFileEncoding(fileEncoding.getText());
       sampler.setMessageChoice(msgChoice.getText());
       sampler.setIterations(iterations.getText());
-      sampler.setUseNonPersistentDelivery(useNonPersistentDelivery.isSelected());
+      //sampler.setUseNonPersistentDelivery(useNonPersistentDelivery.isSelected());
      
       JMSProperties args = (JMSProperties) jmsPropertiesPanel.createTestElement();
       sampler.setJMSProperties(args);
@@ -200,11 +205,13 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         jmsJndiPanel = new JMSJndiPanel();
         mainPanel.add(jmsJndiPanel);
 
-        mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
-        mainPanel.add(createPriorityAndExpiration());
+        //mainPanel.add(createPriorityAndExpiration());
         mainPanel.add(jmsErrorReconnectOnCodes);
         mainPanel.add(iterations);
+
+        jmsSendDetailsPanel = new JMSSendDetailsPanel();
+        mainPanel.add(jmsSendDetailsPanel);
 
         jmsPropertiesPanel = new JMSPropertiesPanel(); //$NON-NLS-1$
         mainPanel.add(jmsPropertiesPanel);
@@ -237,11 +244,10 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     public void clearGui(){
         super.clearGui();
         jmsJndiPanel.clearGui();
-        jndiConnFac.setText(""); // $NON-NLS-1$
-        jmsDestination.setText(""); // $NON-NLS-1$
-        expiration.setText(""); // $NON-NLS-1$
+        //jmsDestination.setText(""); // $NON-NLS-1$
+        //expiration.setText(""); // $NON-NLS-1$
         jmsErrorReconnectOnCodes.setText("");
-        priority.setText(""); // $NON-NLS-1$
+        //priority.setText(""); // $NON-NLS-1$
         textMessage.setInitialText(""); // $NON-NLS-1$
         messageFile.setFilename(""); // $NON-NLS-1$
         randomFile.setFilename(""); // $NON-NLS-1$
@@ -252,7 +258,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         msgChoice.setText(TEXT_MSG_RSC);
         iterations.setText("1"); // $NON-NLS-1$
         destSetup.setText(DEST_SETUP_STATIC);
-        useNonPersistentDelivery.setSelected(false);
+        //useNonPersistentDelivery.setSelected(false);
         jmsPropertiesPanel.clearGui();
     }
 
@@ -264,8 +270,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         super.configure(el);
         PublisherSampler sampler = (PublisherSampler) el;
         jmsJndiPanel.configure(sampler);
-        jndiConnFac.setText(sampler.getConnectionFactory());
-        jmsDestination.setText(sampler.getDestination());
+        //jmsDestination.setText(sampler.getDestination());
         textMessage.setInitialText(sampler.getTextMessage());
         textMessage.setCaretPosition(0);
         messageFile.setFilename(sampler.getInputFile());
@@ -274,11 +279,11 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         msgChoice.setText(sampler.getMessageChoice());
         fileEncoding.setText(sampler.getFileEncoding());
         iterations.setText(sampler.getIterations());
-        expiration.setText(sampler.getExpiration());
+        //expiration.setText(sampler.getExpiration());
         jmsErrorReconnectOnCodes.setText(sampler.getReconnectionErrorCodes());
-        priority.setText(sampler.getPriority());
+        //priority.setText(sampler.getPriority());
         destSetup.setText(sampler.isDestinationStatic() ? DEST_SETUP_STATIC : DEST_SETUP_DYNAMIC);
-        useNonPersistentDelivery.setSelected(sampler.getUseNonPersistentDelivery());
+        //useNonPersistentDelivery.setSelected(sampler.getUseNonPersistentDelivery());
         jmsPropertiesPanel.configure(sampler.getJMSProperties());
         updateChoice(msgChoice.getText());
         updateConfig(sampler.getConfigChoice());
@@ -351,10 +356,10 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      */
     private JPanel createDestinationPane() {
         JPanel pane = new JPanel(new BorderLayout(3, 0));
-        pane.add(jmsDestination, BorderLayout.WEST);
+        //pane.add(jmsDestination, BorderLayout.WEST);
         destSetup.setLayout(new BoxLayout(destSetup, BoxLayout.X_AXIS));
         pane.add(destSetup, BorderLayout.CENTER);
-        pane.add(useNonPersistentDelivery, BorderLayout.EAST);
+        //pane.add(useNonPersistentDelivery, BorderLayout.EAST);
         return pane;
     }
 
@@ -363,8 +368,8 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      */
     private JPanel createPriorityAndExpiration() {
         JPanel panel = new HorizontalPanel();
-        panel.add(expiration);
-        panel.add(priority);
+        //panel.add(expiration);
+        //panel.add(priority);
         return panel;
     }
 }
