@@ -31,6 +31,10 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
         return urlField.getText();
     }
 
+    public String getJndiConnFac() {
+        return jndiConnFac.getText();
+    }
+
     public boolean getUseAuth() {
         return useAuth.isSelected();
     }
@@ -47,6 +51,8 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
     /* Connection settings */
     private final JLabeledTextField jndiICF = new JLabeledTextField(JMeterUtils.getResString("jms_initial_context_factory")); //$NON-NLS-1$
     private final JLabeledTextField urlField = new JLabeledTextField(JMeterUtils.getResString("jms_provider_url")); //$NON-NLS-1$
+
+    private final JLabeledTextField jndiConnFac = new JLabeledTextField(JMeterUtils.getResString("jms_connection_factory")); //$NON-NLS-1$
 
     /* Authentication settings */
     private final JCheckBox useAuth = new JCheckBox(JMeterUtils.getResString("jms_use_auth"), false); //$NON-NLS-1$
@@ -71,6 +77,7 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
 
         jndiICF.setText(""); // $NON-NLS-1$
         urlField.setText(""); // $NON-NLS-1$
+        jndiConnFac.setText(""); // $NON-NLS-1$
         jmsUser.setText(""); // $NON-NLS-1$
         jmsPwd.setText(""); // $NON-NLS-1$
     }
@@ -79,7 +86,6 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
      * Configures GUI from el
      * @param el {@link TestElement}
      */
-
     public void configure(TestElement el) {
         BaseJMSSampler sampler = (BaseJMSSampler) el;
 
@@ -92,6 +98,7 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
         /* Set widget value */
         jndiICF.setText(sampler.getJNDIInitialContextFactory());
         urlField.setText(sampler.getProviderUrl());
+        jndiConnFac.setText(sampler.getConnectionFactory());
         jmsUser.setText(sampler.getUsername());
         jmsPwd.setText(sampler.getPassword());
     }
@@ -128,6 +135,7 @@ public class JMSJndiPanel extends JPanel implements ChangeListener {
         pane.add(useProperties);
         pane.add(jndiICF);
         pane.add(urlField);
+        pane.add(jndiConnFac);
 
         JPanel authpane = new HorizontalPanel();
         authpane.add(useAuth);
