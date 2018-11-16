@@ -41,9 +41,9 @@ public class BinaryMessageRendererTest extends MessageRendererTest<byte[]> {
         return render;
     }
 
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void getValueFromText() {
-        render.getValueFromText("");
+        assertBytesEquals("{\"key1\": \"value1\"}", render.getValueFromText("{\"key1\": \"value1\"}"));
     }
 
     @Test
@@ -64,6 +64,10 @@ public class BinaryMessageRendererTest extends MessageRendererTest<byte[]> {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void assertText(String text) {
+
     }
 
     @Test
