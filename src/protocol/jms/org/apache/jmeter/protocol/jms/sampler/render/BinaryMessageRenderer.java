@@ -38,14 +38,7 @@ class BinaryMessageRenderer implements MessageRenderer<byte[]> {
 
     @Override
     public byte[] getValueFromText(String text) {
-        byte[] bytes;
-
-        try {
-            bytes = text.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        return bytes;
+        return text.getBytes();
     }
 
     @Override

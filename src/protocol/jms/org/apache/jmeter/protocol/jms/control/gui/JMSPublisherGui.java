@@ -69,7 +69,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
     //-- End of names used in JMX files
 
     // Button group resources when Bytes Message is selected
-    private static final String[] CONFIG_ITEMS_BYTES_MSG = { USE_FILE_RSC, USE_RANDOM_RSC};
+    //private static final String[] CONFIG_ITEMS_BYTES_MSG = { USE_FILE_RSC, USE_RANDOM_RSC};
 
     // Button group resources
     private static final String[] CONFIG_ITEMS = { USE_FILE_RSC, USE_RANDOM_RSC, USE_TEXT_RSC };
@@ -78,6 +78,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JCheckBox useProperties = new JCheckBox(JMeterUtils.getResString("jms_use_properties_file"), false); //$NON-NLS-1$
 
+    // FIXME TODO Rename configChoice as messageSource or messageSourceChoice?
     private final JLabeledRadioI18N configChoice = new JLabeledRadioI18N("jms_config", CONFIG_ITEMS, USE_TEXT_RSC); //$NON-NLS-1$
 
     private final JLabeledTextField jndiICF = new JLabeledTextField(JMeterUtils.getResString("jms_initial_context_factory")); //$NON-NLS-1$
@@ -109,6 +110,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JSyntaxTextArea textMessage = JSyntaxTextArea.getInstance(10, 50); // $NON-NLS-1$
 
+    // FIXME TODO Rename msgChoice as messageTypeChoice?
     private final JLabeledRadioI18N msgChoice = new JLabeledRadioI18N("jms_message_type", MSGTYPES_ITEMS, TEXT_MSG_RSC); //$NON-NLS-1$
     
     private JLabeledChoice fileEncoding;
@@ -342,16 +344,18 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      * @since 2.9
      */
     private void updateChoice(String command) {
-        /* FIXME TODO
+        /* FIXME TODO *//*
         String oldChoice = configChoice.getText();
         if (BYTES_MSG_RSC.equals(command)) {
+            // This says that if we are changing to Bytes Message, need to change
             String newChoice = USE_TEXT_RSC.equals(oldChoice) ? 
                     USE_FILE_RSC : oldChoice;
-            configChoice.resetButtons(CONFIG_ITEMS_BYTES_MSG, newChoice);
-            textMessage.setEnabled(false);
+            configChoice.resetButtons(CONFIG_ITEMS, newChoice);
+            //textMessage.setEnabled(false);
         } else {
+            // Text, Map, Object
             configChoice.resetButtons(CONFIG_ITEMS, oldChoice);
-            textMessage.setEnabled(true);
+            //textMessage.setEnabled(true);
         }*/
         updateFileEncoding();
         validate();
@@ -362,7 +366,13 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
      *
      * @param command
      */
+    // FIXME TODO Replace with ChangeListeners?
+
     private void updateConfig(String command) {
+        textMessage.setEnabled(command.equals(USE_TEXT_RSC));
+        messageFile.enableFile(command.equals(USE_FILE_RSC));
+        randomFile.enableFile(command.equals(USE_RANDOM_RSC));
+        /*
         if (command.equals(USE_TEXT_RSC)) {
             textMessage.setEnabled(true);
             messageFile.enableFile(false);
@@ -371,11 +381,11 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
             textMessage.setEnabled(false);
             messageFile.enableFile(false);
             randomFile.enableFile(true);
-        } else {
+        } else {  // USE_FILE_RSC
             textMessage.setEnabled(false);
             messageFile.enableFile(true);
             randomFile.enableFile(false);
-        }
+        }*/
         updateFileEncoding();
     }
     
